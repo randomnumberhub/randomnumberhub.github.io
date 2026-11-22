@@ -1,0 +1,1008 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+<meta name="google-site-verification" content="HoWofmErOOKMSn8dHeXvBTb5cGoEBEB1rQ7Y3CrUYgY" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>RandomNumberHub — Random Number Generator, Dice Roller &amp; Coin Flip</title>
+    <meta name="description" content="RandomNumberHub is a free random number generator with a dice roller and coin flip tool. Generate fair, unbiased random numbers in your browser, and read plain-English guides on randomness, dice probability and lotteries." />
+    <link rel="canonical" href="https://randomnumberhub.github.io/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="RandomNumberHub" />
+    <meta property="og:title" content="RandomNumberHub — Random Number Generator, Dice Roller &amp; Coin Flip" />
+    <meta property="og:description" content="Generate fair random numbers, roll up to six dice, and flip a coin with a running tally. Free tools plus clear guides on how randomness really works." />
+    <meta property="og:url" content="https://randomnumberhub.github.io/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="RandomNumberHub — Random Number Generator, Dice Roller &amp; Coin Flip" />
+    <meta name="twitter:description" content="Free random number generator, dice roller and coin flip, powered by your browser's cryptographic random source." />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "RandomNumberHub",
+      "url": "https://randomnumberhub.github.io/",
+      "description": "Free random number generator, dice roller and coin flip tools, with plain-English guides on randomness and probability."
+    }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #f5f2fc;
+        --bg-band: #ece5f9;
+        --surface: #ffffff;
+        --ink: #2b2145;
+        --ink-soft: #574e75;
+        --accent: #6d28d9;
+        --accent-deep: #4c1d95;
+        --accent-soft: #ede9fe;
+        --line: #d9cff2;
+        --result-bg: #ede9fe;
+        --error: #b91c1c;
+        --shadow: 0 10px 30px rgba(76, 29, 149, 0.10);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #171130;
+          --bg-band: #1f1845;
+          --surface: #241b52;
+          --ink: #efeaff;
+          --ink-soft: #c3b8ea;
+          --accent: #a78bfa;
+          --accent-deep: #c4b5fd;
+          --accent-soft: #2e2364;
+          --line: #3d3178;
+          --result-bg: #2e2364;
+          --error: #fca5a5;
+          --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 17px;
+        line-height: 1.65;
+      }
+      h1, h2, h3 {
+        font-family: "DM Serif Display", Georgia, serif;
+        font-weight: 400;
+        line-height: 1.2;
+        color: var(--ink);
+      }
+      h1 { font-size: clamp(2rem, 5.5vw, 3.1rem); margin: 0 0 0.5rem; }
+      h2 { font-size: clamp(1.55rem, 3.6vw, 2.1rem); margin: 0 0 0.75rem; }
+      h3 { font-size: 1.25rem; margin: 1.6rem 0 0.4rem; }
+      p { margin: 0 0 1rem; }
+      a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+      a:hover { color: var(--accent-deep); }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+
+      /* Header / nav */
+      header.site-head {
+        border-bottom: 1px solid var(--line);
+        background: var(--bg);
+      }
+      .head-in {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px;
+        padding-top: 14px; padding-bottom: 14px;
+      }
+      .brand {
+        font-family: "DM Serif Display", Georgia, serif;
+        font-size: 1.45rem; color: var(--ink); text-decoration: none;
+      }
+      .brand span { color: var(--accent); }
+      nav.main-nav { display: flex; flex-wrap: wrap; gap: 2px 4px; margin-left: auto; }
+      nav.main-nav a {
+        color: var(--ink-soft); text-decoration: none; font-weight: 500;
+        padding: 10px 12px; min-height: 44px; display: inline-flex; align-items: center;
+        border-radius: 8px;
+      }
+      nav.main-nav a:hover, nav.main-nav a.active { color: var(--accent-deep); background: var(--accent-soft); }
+
+      /* Page sections */
+      .page { display: none; }
+      .page.visible { display: block; }
+      section.band { background: var(--bg-band); }
+      .pad { padding: 44px 0; }
+      .pad-sm { padding: 30px 0; }
+      hr.sep { border: none; border-top: 1px solid var(--line); margin: 0; }
+      .lede { font-size: 1.13rem; color: var(--ink-soft); max-width: 46rem; }
+      .small { font-size: 0.92rem; color: var(--ink-soft); }
+
+      /* Tool controls */
+      .tool { padding: 8px 0 4px; }
+      .controls {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 14px 18px; margin: 18px 0 6px;
+      }
+      .field label { display: block; font-weight: 500; font-size: 0.95rem; margin-bottom: 6px; }
+      .field input[type="number"], .field select {
+        width: 100%; padding: 10px 12px; font-size: 1rem; font-family: inherit;
+        color: var(--ink); background: var(--surface);
+        border: 1px solid var(--line); border-radius: 8px; min-height: 46px;
+      }
+      .field input:focus, .field select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+      label.check {
+        display: flex; align-items: center; gap: 10px; cursor: pointer;
+        padding: 10px 2px; min-height: 46px; font-weight: 500; font-size: 0.98rem;
+      }
+      label.check input { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
+      .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 6px; }
+      button.btn {
+        font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer;
+        min-height: 48px; padding: 12px 26px; border-radius: 10px;
+        border: 1px solid var(--accent); background: var(--accent); color: #fff;
+      }
+      button.btn:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+      button.btn.ghost { background: transparent; color: var(--accent); }
+      button.btn.ghost:hover { background: var(--accent-soft); color: var(--accent-deep); }
+      button.btn.small { min-height: 44px; padding: 9px 18px; font-size: 0.95rem; }
+      .seg { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+      .seg button {
+        font-family: inherit; font-size: 1rem; font-weight: 600; cursor: pointer;
+        min-width: 46px; min-height: 46px; padding: 8px 12px; border-radius: 8px;
+        border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+      }
+      .seg button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+      .results {
+        margin-top: 18px; padding: 18px; border-radius: 12px;
+        background: var(--result-bg); min-height: 64px;
+      }
+      .results:empty { display: none; }
+      .num-chip {
+        display: inline-block; margin: 0 8px 8px 0; padding: 8px 14px;
+        background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+        font-weight: 700; font-size: 1.05rem; font-variant-numeric: tabular-nums;
+      }
+      .stats { margin-top: 6px; font-size: 0.95rem; color: var(--ink-soft); }
+      .msg-error { color: var(--error); font-weight: 500; margin-top: 12px; }
+      .msg-error:empty { display: none; }
+
+      /* Dice + coin visuals */
+      .dice-row { display: flex; flex-wrap: wrap; gap: 14px; margin: 16px 0 6px; min-height: 84px; align-items: center; }
+      .die {
+        width: 78px; height: 78px; border-radius: 16px; background: var(--surface);
+        border: 1px solid var(--line); box-shadow: var(--shadow);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 3.1rem; line-height: 1; color: var(--accent-deep);
+      }
+      .dice-total { font-size: 1.3rem; font-weight: 700; margin-top: 8px; }
+      .history { font-size: 0.93rem; color: var(--ink-soft); margin-top: 10px; }
+      .history div { padding: 3px 0; border-bottom: 1px dashed var(--line); }
+      .coin-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 26px; margin: 16px 0 4px; }
+      .coin {
+        width: 118px; height: 118px; border-radius: 50%; flex: none;
+        background: radial-gradient(circle at 35% 30%, #c4b5fd, var(--accent) 70%);
+        color: #fff; display: flex; align-items: center; justify-content: center;
+        font-family: "DM Serif Display", Georgia, serif; font-size: 1.5rem;
+        box-shadow: var(--shadow); text-align: center; padding: 10px;
+      }
+      @media (prefers-color-scheme: dark) {
+        .coin { background: radial-gradient(circle at 35% 30%, #7c5cd6, #4c1d95 70%); }
+      }
+      .tally { font-size: 1.05rem; }
+      .tally strong { font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+
+      /* Article lists & prose */
+      ul.link-list { list-style: none; padding: 0; margin: 10px 0 0; }
+      ul.link-list li { padding: 14px 0; border-bottom: 1px solid var(--line); }
+      ul.link-list li:last-child { border-bottom: none; }
+      ul.link-list a { font-size: 1.12rem; font-weight: 700; text-decoration: none; }
+      ul.link-list a:hover { text-decoration: underline; }
+      ul.link-list p { margin: 4px 0 0; color: var(--ink-soft); font-size: 0.97rem; }
+      article.prose { max-width: 46rem; }
+      article.prose p, .prose-body p { max-width: 46rem; }
+      .meta-line { color: var(--ink-soft); font-size: 0.93rem; margin-bottom: 22px; }
+      table.data { border-collapse: collapse; margin: 14px 0 22px; font-variant-numeric: tabular-nums; }
+      table.data th, table.data td { border: 1px solid var(--line); padding: 8px 14px; text-align: left; }
+      table.data th { background: var(--accent-soft); font-weight: 700; }
+      details.faq { border-bottom: 1px solid var(--line); padding: 6px 0; }
+      details.faq summary {
+        cursor: pointer; font-weight: 700; font-size: 1.05rem; padding: 12px 0; min-height: 44px;
+      }
+      details.faq p { padding-bottom: 12px; color: var(--ink-soft); }
+
+      footer.site-foot {
+        border-top: 1px solid var(--line); margin-top: 10px;
+        padding: 30px 0 40px; font-size: 0.95rem; color: var(--ink-soft);
+      }
+      footer.site-foot nav { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-bottom: 12px; }
+      footer.site-foot nav a { color: var(--ink-soft); padding: 6px 0; min-height: 36px; display: inline-flex; align-items: center; }
+      @media (max-width: 560px) {
+        body { font-size: 16px; }
+        .pad { padding: 34px 0; }
+        .coin { width: 100px; height: 100px; font-size: 1.3rem; }
+        .die { width: 66px; height: 66px; font-size: 2.6rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-head">
+      <div class="wrap head-in">
+        <a class="brand" href="#/">Random<span>Number</span>Hub</a>
+        <nav class="main-nav" aria-label="Main">
+          <a href="#/" data-nav="home">Home</a>
+          <a href="#/articles" data-nav="articles">Articles</a>
+          <a href="#/faq" data-nav="faq">FAQ</a>
+          <a href="#/about" data-nav="about">About</a>
+          <a href="#/contact" data-nav="contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- ============================ HOME ============================ -->
+      <div class="page" data-page="home">
+        <section class="pad">
+          <div class="wrap">
+            <h1>Random Number Generator</h1>
+            <p class="lede">Pick a range, choose how many numbers you need, and RandomNumberHub draws them instantly using the cryptographic random source built into your browser — the same quality of randomness your device relies on to keep passwords and connections secure. No sign-up, no waiting, and nothing you generate ever leaves your device.</p>
+
+            <div class="tool" id="generator">
+              <div class="controls">
+                <div class="field">
+                  <label for="rng-min">Minimum</label>
+                  <input type="number" id="rng-min" value="1" step="any" />
+                </div>
+                <div class="field">
+                  <label for="rng-max">Maximum</label>
+                  <input type="number" id="rng-max" value="100" step="any" />
+                </div>
+                <div class="field">
+                  <label for="rng-count">How many numbers</label>
+                  <input type="number" id="rng-count" value="5" min="1" max="500" step="1" />
+                </div>
+                <div class="field">
+                  <label for="rng-mode">Number type</label>
+                  <select id="rng-mode">
+                    <option value="int" selected>Whole numbers</option>
+                    <option value="dec">Decimals</option>
+                  </select>
+                </div>
+                <div class="field" id="rng-places-field" hidden>
+                  <label for="rng-places">Decimal places</label>
+                  <select id="rng-places">
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                  </select>
+                </div>
+              </div>
+              <label class="check" for="rng-dupes">
+                <input type="checkbox" id="rng-dupes" checked />
+                Allow duplicate numbers
+              </label>
+              <div class="btn-row">
+                <button class="btn" id="rng-go" type="button">Generate numbers</button>
+                <button class="btn ghost" id="rng-copy" type="button">Copy results</button>
+              </div>
+              <p class="msg-error" id="rng-error" role="alert"></p>
+              <div class="results" id="rng-results" aria-live="polite"></div>
+              <p class="stats" id="rng-stats"></p>
+            </div>
+
+            <p class="small">Need a quick decision instead of a number? Scroll down for the <a href="#dice">dice roller</a> and the <a href="#coin">coin flip</a>, or read our beginner-friendly guide to <a href="#/article/what-is-a-random-number">what a random number actually is</a>.</p>
+          </div>
+        </section>
+
+        <hr class="sep" />
+
+        <section class="band pad" id="dice">
+          <div class="wrap">
+            <h2>Dice Roller</h2>
+            <p>Roll between one and six standard dice. Each die is drawn independently from the same cryptographic random source as the number generator, so every face from one to six is equally likely on every roll. The total is added up for you — handy for board games, tabletop role-playing, and settling who goes first. If you want to understand the odds behind the totals, our article on <a href="#/article/dice-probability-basics">dice probability basics</a> walks through them roll by roll.</p>
+            <div class="tool">
+              <div class="field" style="max-width: 320px;">
+                <label>Number of dice</label>
+                <div class="seg" id="dice-count" role="group" aria-label="Number of dice">
+                  <button type="button" data-n="1">1</button>
+                  <button type="button" data-n="2" class="on">2</button>
+                  <button type="button" data-n="3">3</button>
+                  <button type="button" data-n="4">4</button>
+                  <button type="button" data-n="5">5</button>
+                  <button type="button" data-n="6">6</button>
+                </div>
+              </div>
+              <div class="dice-row" id="dice-row" aria-live="polite">
+                <div class="die">⚁</div>
+                <div class="die">⚄</div>
+              </div>
+              <p class="dice-total" id="dice-total">Total: 7</p>
+              <div class="btn-row">
+                <button class="btn" id="dice-roll" type="button">Roll the dice</button>
+              </div>
+              <div class="history" id="dice-history"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="pad" id="coin">
+          <div class="wrap">
+            <h2>Coin Flip</h2>
+            <p>No coin in your pocket? Flip a virtual one instead. Flip a single coin for a quick yes-or-no decision, or flip ten at once to watch the tally build up. Over a handful of flips the counts can look lopsided — that is normal. Over hundreds of flips, heads and tails settle close to fifty-fifty, a pattern explained in our guide to <a href="#/article/what-is-a-random-number">what randomness means</a>.</p>
+            <div class="tool">
+              <div class="coin-wrap">
+                <div class="coin" id="coin-face">Flip me</div>
+                <div class="tally">
+                  <p style="margin:0 0 4px;">Heads: <strong id="tally-heads">0</strong> &nbsp;·&nbsp; Tails: <strong id="tally-tails">0</strong></p>
+                  <p style="margin:0;" class="small">Total flips: <span id="tally-total">0</span> · Last result: <span id="tally-last">—</span></p>
+                </div>
+              </div>
+              <div class="btn-row">
+                <button class="btn" id="coin-one" type="button">Flip 1 coin</button>
+                <button class="btn ghost" id="coin-ten" type="button">Flip 10 coins</button>
+                <button class="btn ghost" id="coin-reset" type="button">Reset tally</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="sep" />
+
+        <section class="pad">
+          <div class="wrap prose-body">
+            <h2>What randomness actually means</h2>
+            <p>A result is random when nobody — not you, not us, not anyone — can predict it better than chance before it happens. That sounds simple, but it is a surprisingly slippery idea. A shuffled deck of cards is random because every order is equally likely and no one arranged it. A number you "just think of" is usually not random at all: people asked to pick a number between one and ten choose seven far more often than chance would suggest, and almost nobody picks one or ten. Genuine randomness means every possible outcome has exactly the probability it should, and each draw is independent of the ones before it — the generator has no memory and no favourites.</p>
+            <p>That independence is where most intuition goes wrong. If a coin lands heads five times in a row, tails is not "due"; the coin does not know what happened before. Random sequences naturally contain streaks and clusters, and a sequence that looks too tidy — heads, tails, heads, tails, perfectly alternating — is actually one of the least likely patterns of all. We explore these ideas properly in <a href="#/article/what-is-a-random-number">What Is a Random Number?</a> and in <a href="#/article/random-vs-pseudorandom">Random vs. Pseudorandom</a>, which explains the difference between true randomness and the very convincing imitation most computers produce.</p>
+
+            <h2>Everyday uses of random numbers</h2>
+            <p>Random numbers quietly run a large part of modern life. Lottery draws depend on them, which is why our article on <a href="#/article/random-numbers-in-lotteries">how lotteries use random numbers</a> looks at the machines and audits that keep draws honest. Teachers use generators to pick a student fairly instead of always calling on the front row. Giveaway hosts draw a winning comment or raffle ticket without favouritism. Tabletop gamers roll dice, developers shuffle playlists and test software with random inputs, and researchers assign volunteers to trial groups at random so results cannot be skewed — a technique called random sampling that underpins almost every opinion poll and medical study you have ever read about.</p>
+            <p>Behind the scenes, randomness is also a security tool. Every time your browser opens a secure connection, random numbers help build the encryption keys that protect it. Password resets, one-time login codes and two-factor prompts all start life as random values that an attacker must be unable to guess. That is exactly why the tools on this page draw from a cryptographic source rather than a simple formula: the numbers are suitable not just for games, but for jobs where predictability would be a real problem. Our deep dive on <a href="#/article/how-computers-generate-randomness">how computers generate randomness</a> explains where that unpredictability comes from.</p>
+
+            <h2>How this generator works</h2>
+            <p>When you press the Generate button, the page asks your browser for random bytes through a built-in browser feature called <code>crypto.getRandomValues</code>. Your operating system gathers tiny unpredictable signals — timing jitter, hardware noise, device activity — and mixes them into a pool of randomness that this function draws from. The page then converts those random bytes into numbers inside your chosen range using a technique called rejection sampling: any byte value that would make some outcomes slightly more likely than others is thrown away and redrawn, so every number in your range has precisely the same chance of appearing. If you switch off duplicates, the generator keeps a list of what it has already drawn and redraws any repeat, the same way you would pull raffle tickets out of a hat without putting them back.</p>
+            <p>Everything happens locally in your browser. Your settings and results are never sent to a server, stored in a database, or shared with anyone — you can read more in our <a href="#/privacy">privacy policy</a>. The dice roller and coin flip use the identical random source and the same rejection-sampling care, so a six is exactly as likely as a one, and heads exactly as likely as tails, on every single try.</p>
+
+            <h2>A short note on fairness</h2>
+            <p>No generator can promise that a short run of results will "look" random. Generate five numbers between one and ten and you might well get two of them the same, or three in a row — that is what real randomness looks like up close. Fairness is a property of the process over many draws, not of any single handful. If you ever doubt a tool like this, the honest test is volume: generate a few thousand numbers, count how often each value appears, and check the counts are roughly even, with the small wobbles getting proportionally smaller as the sample grows. That wobble-shrinking behaviour is the law of large numbers, and it is also why a lottery needs millions of players before its results settle into the expected pattern described in <a href="#/article/random-numbers-in-lotteries">our lottery article</a>.</p>
+          </div>
+        </section>
+
+        <hr class="sep" />
+
+        <section class="band pad">
+          <div class="wrap">
+            <h2>Guides and articles</h2>
+            <p>Plain-English reading on randomness, probability and the machines behind the numbers. Browse the full list on the <a href="#/articles">articles page</a>.</p>
+            <ul class="link-list">
+              <li>
+                <a href="#/article/what-is-a-random-number">What Is a Random Number?</a>
+                <p>Unpredictability, independence, and why the number you "just thought of" probably is not random.</p>
+              </li>
+              <li>
+                <a href="#/article/how-computers-generate-randomness">How Computers Generate Randomness</a>
+                <p>From hardware noise to cryptographic generators — where a machine finds genuine unpredictability.</p>
+              </li>
+              <li>
+                <a href="#/article/dice-probability-basics">Dice Probability Basics</a>
+                <p>Why seven is the most common two-dice total, and how to work out the odds of any roll.</p>
+              </li>
+              <li>
+                <a href="#/article/random-numbers-in-lotteries">Random Numbers in Lotteries</a>
+                <p>Ball machines, air mixing, independent audits — how big draws convince millions of players they are fair.</p>
+              </li>
+              <li>
+                <a href="#/article/random-vs-pseudorandom">Random vs. Pseudorandom: What Is the Difference?</a>
+                <p>Formulas that imitate chance, seeds that start them, and when the imitation is good enough.</p>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="pad">
+          <div class="wrap">
+            <h2>Quick questions</h2>
+            <details class="faq">
+              <summary>Are the numbers on this site really random?</summary>
+              <p>They are drawn from your browser's cryptographic random source, the same one used for security tasks. Each value in your range is equally likely, and draws are independent. For everyday uses — games, draws, sampling, decisions — this is as fair as randomness gets outside specialised hardware.</p>
+            </details>
+            <details class="faq">
+              <summary>Can I generate numbers without repeats?</summary>
+              <p>Yes. Untick "Allow duplicate numbers" and the generator will draw each value at most once, like pulling tickets from a hat. With whole numbers, the amount you request cannot be larger than the size of your range.</p>
+            </details>
+            <details class="faq">
+              <summary>Is anything I generate stored or sent anywhere?</summary>
+              <p>No. All three tools run entirely in your browser. Your settings and results never leave your device. The full <a href="#/faq">FAQ page</a> answers more, including decimal numbers, dice odds and using the tools for giveaways.</p>
+            </details>
+            <p style="margin-top:18px;"><a href="#/faq">Read all frequently asked questions →</a></p>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================ ARTICLES INDEX ============================ -->
+      <div class="page" data-page="articles">
+        <section class="pad">
+          <div class="wrap">
+            <h1>Articles</h1>
+            <p class="lede">Original, plain-English guides on randomness and probability — what random really means, how computers manage it, and how dice and lotteries put it to work.</p>
+            <ul class="link-list">
+              <li>
+                <a href="#/article/what-is-a-random-number">What Is a Random Number?</a>
+                <p>Unpredictability, independence, streaks and clusters — the ideas underneath every draw, roll and shuffle.</p>
+              </li>
+              <li>
+                <a href="#/article/how-computers-generate-randomness">How Computers Generate Randomness</a>
+                <p>Deterministic machines have a problem: they are built to be predictable. Here is how they escape it.</p>
+              </li>
+              <li>
+                <a href="#/article/dice-probability-basics">Dice Probability Basics</a>
+                <p>The odds behind every total from two to twelve, why seven rules the table, and how to calculate any roll.</p>
+              </li>
+              <li>
+                <a href="#/article/random-numbers-in-lotteries">Random Numbers in Lotteries</a>
+                <p>How major draws generate their winning numbers and prove to millions of players that the result is fair.</p>
+              </li>
+              <li>
+                <a href="#/article/random-vs-pseudorandom">Random vs. Pseudorandom: What Is the Difference?</a>
+                <p>Algorithms that fake chance convincingly, the seeds that start them, and the jobs each kind is fit for.</p>
+              </li>
+            </ul>
+            <p style="margin-top:22px;">Want to put the ideas into practice? Head back to the <a href="#/">random number generator, dice roller and coin flip</a> on the homepage.</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================ ARTICLE 1 ============================ -->
+      <div class="page" data-page="article-what-is-a-random-number">
+        <section class="pad">
+          <div class="wrap">
+            <article class="prose">
+              <h1>What Is a Random Number?</h1>
+              <p class="meta-line">RandomNumberHub Guides · Reading time: about 5 minutes</p>
+              <p>Ask a room full of people to each write down a random number between one and ten, and something odd happens. The results cluster. Seven is picked far more than any other value, three and eight do well too, and almost nobody chooses one or ten. The numbers feel random to the people writing them, but they are not: a good guesser who knows these habits can predict the room's choices far better than chance. That gap — between what feels random and what actually is random — is the whole subject of this article.</p>
+              <h3>Two requirements: unpredictability and fairness</h3>
+              <p>A random draw has to satisfy two conditions. First, it must be unpredictable: before the draw happens, nobody can know the outcome, or influence it, or guess it with better odds than the probabilities allow. Second, it must be fair: every possible outcome occurs with exactly its intended probability. For a single number between one and ten, fair means each value shows up about one time in ten over the long run. The human number-pickers fail on both counts — their choices can be predicted better than chance, and the distribution is lopsided.</p>
+              <p>There is a third condition that is easy to miss: independence. Each draw must be unaffected by the draws before it. A fair coin that lands heads does not become more likely to land tails next time; its probability stays at exactly one half. Streaks of five or six heads in a row feel suspicious, but in a long sequence of flips they are not just possible, they are expected. A sequence with no streaks at all would be the truly suspicious one.</p>
+              <h3>Why randomness looks wrong</h3>
+              <p>Human brains are pattern-finding machines, and randomness is full of patterns by accident. Flip a coin twenty times and you will probably see a run of three or four identical results somewhere in the list. Roll two dice and the totals bunch toward the middle, because there are more ways to make a seven than a two — our article on <a href="#/article/dice-probability-basics">dice probability basics</a> shows the full breakdown. Shuffle a playlist and two songs by the same artist land back to back, and listeners complain the shuffle is "not random enough", when in fact a perfectly even spread would be the artificial result. Streaming services have famously adjusted their shuffles to feel random rather than be random.</p>
+              <h3>Where random numbers come from</h3>
+              <p>Physical sources — tumbling dice, shuffled cards, lottery balls bouncing in an air-mix machine — get their unpredictability from physics: tiny differences in how a die leaves your hand grow into completely different outcomes. Computers have the opposite problem, because they are built to follow instructions exactly. They solve it two ways: by measuring unpredictable physical events (the timing of keystrokes, electrical noise, hardware jitter) and by using algorithms whose output passes every statistical test for randomness even though it starts from a starting value called a seed. The difference between those two approaches is the subject of <a href="#/article/random-vs-pseudorandom">Random vs. Pseudorandom</a>, and <a href="#/article/how-computers-generate-randomness">How Computers Generate Randomness</a> explains how the generator on this site's <a href="#/">homepage</a> turns your browser's built-in cryptographic source into fair numbers in any range you choose.</p>
+              <h3>A practical definition</h3>
+              <p>For everyday purposes, a random number is one produced by a process where every outcome in the range is equally likely, each draw is independent, and nobody can predict or steer the result. The tools on RandomNumberHub are built to that standard: they draw from a cryptographic source and reject any intermediate value that would tilt the odds, however slightly. Whether you are picking a raffle winner, choosing a sample, or just deciding who makes the tea, that is the standard worth insisting on — because the moment a draw can be predicted or nudged, it stops being a draw and starts being a decision in disguise.</p>
+              <p><a href="#/articles">← Back to all articles</a> · <a href="#/">Try the generator</a></p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================ ARTICLE 2 ============================ -->
+      <div class="page" data-page="article-how-computers-generate-randomness">
+        <section class="pad">
+          <div class="wrap">
+            <article class="prose">
+              <h1>How Computers Generate Randomness</h1>
+              <p class="meta-line">RandomNumberHub Guides · Reading time: about 6 minutes</p>
+              <p>A computer is the worst imaginable place to look for randomness. Machines are built to do exactly what they are told, the same way, every time: give a program the same input and it must return the same output, or something is broken. Yet computers shuffle our music, deal our cards, encrypt our messages and pick our lottery numbers. The story of how a deterministic machine produces unpredictable numbers is one of the quiet triumphs of modern computing.</p>
+              <h3>Step one: find some chaos</h3>
+              <p>Every random system starts with entropy — genuine unpredictability harvested from the physical world. Operating systems collect it constantly: the microsecond timing between your keystrokes, the movement of your mouse, tiny fluctuations in disk and network timing, electrical noise inside hardware sensors. None of these can be predicted or replayed. They are stirred together into an "entropy pool", a reservoir of disorder that the system guards carefully and tops up whenever it can. Some specialised hardware goes further, measuring thermal noise or even radioactive decay, but for most devices the everyday jitter of a busy machine is plenty.</p>
+              <h3>Step two: stretch it with mathematics</h3>
+              <p>Entropy arrives slowly and irregularly, but programs want random numbers quickly and in bulk. So the pool is used to seed a cryptographic generator — an algorithm designed so that its output is indistinguishable from true randomness to anyone who does not know the internal state, and so that seeing a long stream of outputs reveals nothing about the next one or the ones before. These generators are held to a brutal standard, because they protect real secrets: encryption keys, session tokens and password-reset links all begin as their output. If the generator were predictable, the security built on it would collapse.</p>
+              <h3>What your browser provides</h3>
+              <p>Modern browsers expose this machinery to web pages through a function called <code>crypto.getRandomValues</code>, which fills a block of memory with bytes from the operating system's cryptographic generator. That is precisely what the <a href="#/">random number generator</a> on RandomNumberHub uses. One subtlety matters: turning random bytes into, say, a number from one to ten must be done carefully. The naive approach — take a random byte and divide — can leave some outcomes a fraction more likely than others, because 256 does not divide evenly by ten. The fix, called rejection sampling, is to discard any byte in the uneven remainder and draw again. The bias removed is tiny, but fairness is exactly the kind of thing worth being fussy about.</p>
+              <h3>What about ordinary "random" functions?</h3>
+              <p>Most programming languages also ship a simpler random function, designed for games and simulations, whose output is produced by a fast formula from a seed value. Those are <em>pseudorandom</em>: perfectly fine for shuffling a playlist, unacceptable for generating a password, because anyone who learns the seed or observes enough output can reconstruct the sequence. The distinction is important enough that we gave it its own article: <a href="#/article/random-vs-pseudorandom">Random vs. Pseudorandom</a>. The short version is that this site deliberately uses the cryptographic kind — the strong stuff — even though picking a raffle winner does not strictly require it. There is no reason to settle for less when your device already does the hard work.</p>
+              <p><a href="#/articles">← Back to all articles</a> · <a href="#/">Try the generator</a></p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================ ARTICLE 3 ============================ -->
+      <div class="page" data-page="article-dice-probability-basics">
+        <section class="pad">
+          <div class="wrap">
+            <article class="prose">
+              <h1>Dice Probability Basics</h1>
+              <p class="meta-line">RandomNumberHub Guides · Reading time: about 5 minutes</p>
+              <p>Dice are the oldest random number generators in the world — versions of them have been found in ancient Egyptian tombs and Indus Valley ruins — and they remain the friendliest way to learn probability. Everything about dice odds follows from one idea: count the equally likely outcomes, and see how many of them are the one you want.</p>
+              <h3>One die: the simplest case</h3>
+              <p>A single fair die has six faces, each equally likely, so the probability of any specific face is one in six — about 16.7%. The probability of rolling an even number is three in six, or 50%, because three of the faces (two, four, six) qualify. Every dice calculation, however complicated the game, is this same counting exercise scaled up. You can test it with the <a href="#dice">dice roller</a> on our homepage: roll one die a few hundred times and each face settles near a sixth of the total.</p>
+              <h3>Two dice: why seven is king</h3>
+              <p>With two dice there are 36 equally likely combinations (six faces on the first die times six on the second), but the totals are not equally likely at all. There is only one way to make a total of two — double one — and only one way to make twelve. A total of seven, by contrast, can be made six different ways: 1+6, 2+5, 3+4, 4+3, 5+2 and 6+1. That is why seven is the most common result in dice games, appearing in about 16.7% of rolls, and why totals get rarer as they move toward the extremes.</p>
+              <table class="data">
+                <thead>
+                  <tr><th>Total</th><th>Combinations</th><th>Chance</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>2</td><td>1 of 36</td><td>2.8%</td></tr>
+                  <tr><td>3</td><td>2 of 36</td><td>5.6%</td></tr>
+                  <tr><td>4</td><td>3 of 36</td><td>8.3%</td></tr>
+                  <tr><td>5</td><td>4 of 36</td><td>11.1%</td></tr>
+                  <tr><td>6</td><td>5 of 36</td><td>13.9%</td></tr>
+                  <tr><td>7</td><td>6 of 36</td><td>16.7%</td></tr>
+                  <tr><td>8</td><td>5 of 36</td><td>13.9%</td></tr>
+                  <tr><td>9</td><td>4 of 36</td><td>11.1%</td></tr>
+                  <tr><td>10</td><td>3 of 36</td><td>8.3%</td></tr>
+                  <tr><td>11</td><td>2 of 36</td><td>5.6%</td></tr>
+                  <tr><td>12</td><td>1 of 36</td><td>2.8%</td></tr>
+                </tbody>
+              </table>
+              <h3>More dice, smoother curves</h3>
+              <p>Add a third die and the bunching toward the middle gets stronger: totals of ten and eleven dominate, while three and eighteen become rare one-in-216 events. This is the beginning of one of the deepest patterns in statistics — add up enough independent random values and the totals arrange themselves into a bell shape, clustered around the average. It is the same reason heights and measurement errors form bell curves in nature. The average total also becomes predictable: each die contributes an average of 3.5, so two dice average seven and five dice average 17.5, even though no single roll can be forecast.</p>
+              <h3>The mistake to avoid</h3>
+              <p>The most common dice fallacy is believing past rolls change future odds. Ten rolls without a six do not make a six "due" — the dice have no memory, a point we return to in <a href="#/article/what-is-a-random-number">What Is a Random Number?</a> Each roll starts fresh at one in six. Probability tells you what to expect over many rolls; it promises nothing about the next one, and any system claiming otherwise is selling you a story, not mathematics.</p>
+              <p><a href="#/articles">← Back to all articles</a> · <a href="#dice">Roll the dice</a></p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================ ARTICLE 4 ============================ -->
+      <div class="page" data-page="article-random-numbers-in-lotteries">
+        <section class="pad">
+          <div class="wrap">
+            <article class="prose">
+              <h1>Random Numbers in Lotteries</h1>
+              <p class="meta-line">RandomNumberHub Guides · Reading time: about 5 minutes</p>
+              <p>A lottery is a promise: millions of people hand over money on the understanding that the winning numbers will be chosen by a process nobody can predict, influence or dispute. Keeping that promise in public, week after week, under the eyes of players, regulators and television cameras, turns out to be a serious engineering and auditing exercise.</p>
+              <h3>Two ways to pick the numbers</h3>
+              <p>Most large lotteries use one of two methods. The traditional approach is a mechanical draw machine: a set of numbered balls, all manufactured to identical size and weight, tumbled in a transparent chamber by paddles or blasted around by jets of air until one is ejected. The physical chaos is the point — as with dice, microscopic differences at the start make the outcome unforeseeable. The second method is a certified random number generator: software, usually fed by a hardware entropy source, that produces the winning combination digitally. Digital draws are cheaper and easier to run frequently, which is why many daily and online games use them.</p>
+              <h3>How fairness is proven, not just claimed</h3>
+              <p>Because the stakes are high, lotteries wrap the draw in layers of verification. Ball sets are weighed, measured and stored under lock, and the set used is often chosen at random on the day. Machines are tested with rehearsal draws before the real one. Independent auditors — typically an outside accounting or testing firm — observe the process and certify the result. For digital draws, the generator software is tested by accredited laboratories against statistical standards, and its code and seed handling are kept under strict controls. Draws are broadcast live or recorded under supervision so the public can see there was no second take.</p>
+              <h3>Why your "lucky numbers" do not help</h3>
+              <p>Every combination in a fair lottery has exactly the same chance, whether it is 1-2-3-4-5-6 or a scattered handful of birthdays. Combinations like 1-2-3-4-5-6 feel impossible because they look ordered, but the draw machine cannot see patterns — it only produces sequences, each as likely as the next. The one real strategic effect runs the other way: popular combinations (birthdays, sequences, patterns on the ticket grid) are picked by many players, so if one of them wins, the prize is split more ways. Choosing unpopular numbers does not raise your chance of winning; it only raises your expected share if you do. The mathematics behind that distinction is the same counting logic explained in <a href="#/article/dice-probability-basics">dice probability basics</a>, scaled up to millions of combinations.</p>
+              <h3>Quick picks and trust</h3>
+              <p>When you ask a terminal for a "quick pick", a random generator chooses your numbers for you — and in many large lotteries, quick picks account for the majority of tickets and a proportional share of jackpot winners, exactly as fairness predicts. Players sometimes worry that a computerised pick could be steered, but a certified generator drawing from genuine entropy is, if anything, harder to tamper with than a physical machine. To understand what "genuine entropy" means inside a machine, read <a href="#/article/how-computers-generate-randomness">How Computers Generate Randomness</a>. The generator on our <a href="#/">homepage</a> uses the same class of cryptographic source as a quick-pick terminal — though, sadly, we cannot sell you a ticket.</p>
+              <p><a href="#/articles">← Back to all articles</a> · <a href="#/">Generate your own numbers</a></p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================ ARTICLE 5 ============================ -->
+      <div class="page" data-page="article-random-vs-pseudorandom">
+        <section class="pad">
+          <div class="wrap">
+            <article class="prose">
+              <h1>Random vs. Pseudorandom: What Is the Difference?</h1>
+              <p class="meta-line">RandomNumberHub Guides · Reading time: about 5 minutes</p>
+              <p>Most of the "random" numbers in your life are fakes — excellent, useful, carefully engineered fakes. Understanding the difference between true randomness and its imitation, pseudorandomness, explains a lot: why your music shuffle repeats an artist, why a video game can be "seeded", and why generating a password demands a stronger tool than shuffling a playlist.</p>
+              <h3>Pseudorandom: a formula pretending</h3>
+              <p>A pseudorandom number generator is an algorithm — a fixed recipe. You give it a starting value called a seed, and it churns out a sequence of numbers that looks random: no obvious pattern, evenly spread, passing statistical tests. But the sequence is completely determined by the seed. Start the same generator with the same seed and you get the same sequence, digit for digit, forever. That reproducibility is a feature in many jobs: a scientist can rerun a simulation exactly, a game can recreate a world from a short seed code, and a developer can debug a failure by replaying the "random" events that caused it.</p>
+              <h3>True random: measured, not calculated</h3>
+              <p>A true random generator does not calculate its numbers; it measures them from a physical process nobody can predict — electronic noise, atmospheric static, the timing jitter inside hardware, in exotic cases the decay of radioactive atoms or photons bouncing off a half-silvered mirror. Because nothing is calculated, there is no seed to steal and no sequence to replay. The output is only as good as the measurement, and gathering it is slower, which is why true randomness is usually used sparingly: to seed and reseed the faster generators, including the cryptographic ones described in <a href="#/article/how-computers-generate-randomness">How Computers Generate Randomness</a>.</p>
+              <h3>The middle ground that protects you</h3>
+              <p>Between the two sits the cryptographically secure pseudorandom generator. It is still an algorithm, but one designed so that even an attacker who watches its output for years cannot predict what comes next or work backwards to earlier values, provided its seed came from real entropy and stays secret. This is the category your browser's <code>crypto.getRandomValues</code> belongs to — and therefore the category the tools on RandomNumberHub belong to. For picking raffle winners and rolling virtual dice it is honestly more strength than required; for anything touching security, it is the minimum acceptable.</p>
+              <h3>Which kind do you actually need?</h3>
+              <p>For games, simulations, shuffling and sampling, plain pseudorandom is fine and fast. For passwords, encryption keys, login codes, gambling and draws with money attached, insist on cryptographic or true randomness — predictability there is not a quirk, it is a vulnerability. And for the deepest question underneath all of this — what randomness even means when a sequence looks patternless — start with <a href="#/article/what-is-a-random-number">What Is a Random Number?</a></p>
+              <p><a href="#/articles">← Back to all articles</a> · <a href="#/">Try the generator</a></p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================ FAQ ============================ -->
+      <div class="page" data-page="faq">
+        <section class="pad">
+          <div class="wrap">
+            <h1>Frequently Asked Questions</h1>
+            <p class="lede">Straight answers about how the tools on RandomNumberHub work and what they are good for.</p>
+            <details class="faq" open>
+              <summary>Are the numbers generated here really random?</summary>
+              <p>They come from your browser's cryptographic random source (<code>crypto.getRandomValues</code>), seeded by your operating system from physical entropy. Every value in your chosen range is equally likely, and each draw is independent of the last. That is the strongest randomness available to a web page, and the same class of source used for security-sensitive tasks.</p>
+            </details>
+            <details class="faq">
+              <summary>Why did I get the same number twice?</summary>
+              <p>Because duplicates are allowed by default, and real randomness includes repeats. If you roll a die six times you will often see a face twice and miss another entirely. If you need every result to be different, untick "Allow duplicate numbers" in the <a href="#/">generator</a> — it will then draw without replacement, like tickets from a hat.</p>
+            </details>
+            <details class="faq">
+              <summary>How many numbers can I generate at once?</summary>
+              <p>Up to 500 in a single batch. If duplicates are switched off and you are generating whole numbers, the batch also cannot be larger than the range itself — you cannot draw 50 different numbers from a range of 1 to 10.</p>
+            </details>
+            <details class="faq">
+              <summary>Can I generate decimal numbers?</summary>
+              <p>Yes. Switch "Number type" to Decimals and choose between one and six decimal places. The values are drawn evenly across your whole range, endpoints included as closely as the chosen precision allows.</p>
+            </details>
+            <details class="faq">
+              <summary>Is the dice roller fair for board games?</summary>
+              <p>Yes. Each die is an independent draw from one to six using the same cryptographic source and rejection sampling as the main generator, so no face is favoured. The roller supports one to six dice and adds up the total automatically. For the odds behind each total, see <a href="#/article/dice-probability-basics">Dice Probability Basics</a>.</p>
+            </details>
+            <details class="faq">
+              <summary>Can I use this for a giveaway or raffle?</summary>
+              <p>You can — set the range to match your entries (for example 1 to the number of comments) and generate one number with duplicates off. For anything with significant prizes, we recommend recording or screensharing the draw so entrants can see it happen, and checking any rules that apply to promotions in your area. This site is a tool, not legal advice.</p>
+            </details>
+            <details class="faq">
+              <summary>Will this pick my lottery numbers?</summary>
+              <p>It can generate numbers in any range a lottery uses, and every combination it produces has exactly the same chance as any other — including the numbers you have played for years. No generator, ours included, can improve the odds of a fair draw. Our article on <a href="#/article/random-numbers-in-lotteries">random numbers in lotteries</a> explains why.</p>
+            </details>
+            <details class="faq">
+              <summary>Does the site store or send my results anywhere?</summary>
+              <p>No. All three tools run entirely in your browser; your settings and results never leave your device and there is no account to sign up for. See the <a href="#/privacy">privacy policy</a> for the full picture.</p>
+            </details>
+            <details class="faq">
+              <summary>Why do my results sometimes look "not random"?</summary>
+              <p>Because genuine randomness contains streaks, clusters and repeats, while our intuition expects an even spread. A short run that looks suspicious is usually just a short run. The effect is discussed in <a href="#/article/what-is-a-random-number">What Is a Random Number?</a> — generate a few thousand values and count them up if you want to watch the wobbles even out.</p>
+            </details>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================ ABOUT ============================ -->
+      <div class="page" data-page="about">
+        <section class="pad">
+          <div class="wrap prose-body">
+            <h1>About RandomNumberHub</h1>
+            <p>RandomNumberHub is a small, free tool site built around one idea: when you need a number you cannot predict and nobody can argue with, getting one should take about three seconds. The homepage carries three tools — a flexible <a href="#/">random number generator</a> with ranges, batch sizes, decimals and an optional no-duplicates mode, a <a href="#dice">dice roller</a> for one to six dice, and a <a href="#coin">coin flip</a> with a running heads-and-tails tally.</p>
+            <p>Everything runs in your browser using its cryptographic random source. That is a deliberate choice. A lot of generator sites use whatever quick random function is nearest to hand; we use the strong one, convert its output with rejection sampling so no value in your range is favoured, and send nothing to a server — because there is no server involved in the tools at all.</p>
+            <p>Alongside the tools, the <a href="#/articles">articles section</a> explains the ideas behind them in plain English: what randomness means, how computers manufacture it, the probability behind dice, and how lotteries prove their draws are fair. Randomness is one of those topics where a little understanding makes everyday claims — about streaks, luck, shuffles and "due" numbers — much easier to judge.</p>
+            <p>RandomNumberHub is free to use, needs no account, and works on phones, tablets and computers. If you have a question or a suggestion, you will find how to reach us on the <a href="#/contact">contact page</a>.</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================ CONTACT ============================ -->
+      <div class="page" data-page="contact">
+        <section class="pad">
+          <div class="wrap prose-body">
+            <h1>Contact</h1>
+            <p>Questions about the tools, a correction to one of the articles, or an idea for a guide we should write? The fastest way to reach RandomNumberHub is by email:</p>
+            <p style="font-size:1.15rem;"><a href="mailto:contact@randomnumberhub.github.io">contact@randomnumberhub.github.io</a></p>
+            <p>A few things worth knowing before you write. We cannot recover numbers you generated earlier — the tools run entirely in your browser and keep no records, which is the point of the design described in our <a href="#/privacy">privacy policy</a>. We also cannot pick "luckier" lottery numbers for you; no one can, and our <a href="#/article/random-numbers-in-lotteries">lottery article</a> explains why every combination has the same chance.</p>
+            <p>For common questions, the <a href="#/faq">FAQ page</a> may already have your answer. We read every message and reply to as many as we can, usually within a few working days.</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================ PRIVACY ============================ -->
+      <div class="page" data-page="privacy">
+        <section class="pad">
+          <div class="wrap prose-body">
+            <h1>Privacy Policy</h1>
+            <p class="meta-line">Last updated: 2026</p>
+            <p>RandomNumberHub is designed to collect as little as possible. This policy explains, in plain language, what happens when you use the site.</p>
+            <h3>The tools collect nothing</h3>
+            <p>The random number generator, dice roller and coin flip run entirely in your browser. The ranges you enter, the options you choose and the results you generate are processed on your own device and are never transmitted to us or to any third party. There are no accounts, no sign-ups and no saved histories.</p>
+            <h3>Cookies and storage</h3>
+            <p>The site does not set advertising or tracking cookies, and the tools do not store your activity in your browser between visits. Your coin-flip tally and dice history exist only while the page is open and disappear when you close it.</p>
+            <h3>Hosting and logs</h3>
+            <p>Like almost every website, the hosting provider that serves these pages may keep standard technical logs (such as IP addresses and browser types) for security and operational purposes. We do not use those logs to build profiles of visitors or to identify individuals.</p>
+            <h3>External links and email</h3>
+            <p>If you email us, we receive the address and contents you choose to send and use them only to reply. Pages on this site may link to external resources; their privacy practices are their own.</p>
+            <h3>Changes</h3>
+            <p>If this policy changes, the updated version will be posted on this page with a revised date. Questions about privacy can be sent through the <a href="#/contact">contact page</a>.</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================ TERMS ============================ -->
+      <div class="page" data-page="terms">
+        <section class="pad">
+          <div class="wrap prose-body">
+            <h1>Terms of Use</h1>
+            <p class="meta-line">Last updated: 2026</p>
+            <p>By using RandomNumberHub you agree to these terms. They are intentionally short and readable.</p>
+            <h3>The service</h3>
+            <p>RandomNumberHub provides free browser-based tools for generating random numbers, rolling virtual dice and flipping a virtual coin, together with educational articles about randomness and probability. The tools are provided "as is", without warranties of any kind, and we may change or discontinue features at any time.</p>
+            <h3>Acceptable use</h3>
+            <p>You may use the tools for personal, educational and commercial purposes, including running draws, samples and games of chance among your own participants. You are responsible for complying with any laws or rules that govern raffles, promotions or gambling in your jurisdiction, and for conducting your own draws fairly and transparently.</p>
+            <h3>No guarantee of outcomes</h3>
+            <p>Random results are, by definition, unpredictable. We make no representation that numbers generated here will win any prize, and we are not responsible for losses arising from decisions you make using the tools or the articles.</p>
+            <h3>Content</h3>
+            <p>The articles on this site are original educational material and may be quoted briefly with a link back. They are provided for general information and are not professional, legal or financial advice.</p>
+            <h3>Liability</h3>
+            <p>To the fullest extent permitted by law, RandomNumberHub is not liable for indirect or consequential damages arising from use of the site. Questions about these terms can be sent through the <a href="#/contact">contact page</a>.</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================ DISCLAIMER ============================ -->
+      <div class="page" data-page="disclaimer">
+        <section class="pad">
+          <div class="wrap prose-body">
+            <h1>Disclaimer</h1>
+            <p class="meta-line">Last updated: 2026</p>
+            <p>The tools and articles on RandomNumberHub are provided for entertainment, education and general decision-making. A few honest limits are worth stating plainly.</p>
+            <p><strong>Randomness has no favourites.</strong> Every number, die face and coin side produced here is equally likely within its range, and no output of these tools can predict or influence the outcome of any lottery, game or event. If you use the generator to choose lottery numbers, your chance of winning is exactly the same as with any other selection method — our <a href="#/article/random-numbers-in-lotteries">article on lotteries</a> explains the mathematics.</p>
+            <p><strong>Not professional advice.</strong> Nothing on this site is legal, financial, statistical-consulting or gambling advice. If you are running a raffle, promotion or study with real stakes, check the rules that apply to you and consider having your draw witnessed or audited.</p>
+            <p><strong>Accuracy of articles.</strong> We write our guides carefully and check the mathematics in them, but probability is a field where simplifications are sometimes necessary for readability. If you spot an error, please tell us via the <a href="#/contact">contact page</a> and we will correct it.</p>
+            <p><strong>Affiliations.</strong> RandomNumberHub is an independent site. It is not affiliated with any lottery operator, gaming company or browser vendor mentioned in its articles.</p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap">
+        <nav aria-label="Footer">
+          <a href="#/">Home</a>
+          <a href="#/articles">Articles</a>
+          <a href="#/faq">FAQ</a>
+          <a href="#/about">About</a>
+          <a href="#/contact">Contact</a>
+          <a href="#/privacy">Privacy Policy</a>
+          <a href="#/terms">Terms of Use</a>
+          <a href="#/disclaimer">Disclaimer</a>
+        </nav>
+        <p>© 2026 RandomNumberHub. Numbers generated here are produced locally in your browser — nothing is sent to a server.</p>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        "use strict";
+
+        /* ---------- Cryptographic random helpers ---------- */
+        // Uniform integer in [0, n) using rejection sampling on 32-bit values,
+        // so no outcome is even slightly favoured.
+        function randBelow(n) {
+          var MAX = 4294967296; // 2^32
+          var limit = MAX - (MAX % n);
+          var buf = new Uint32Array(1);
+          var x;
+          do {
+            crypto.getRandomValues(buf);
+            x = buf[0];
+          } while (x >= limit);
+          return x % n;
+        }
+        function randIntInclusive(min, max) {
+          return min + randBelow(max - min + 1);
+        }
+        // Uniform float in [0, 1) with 32 bits of randomness.
+        function randFloat() {
+          var buf = new Uint32Array(1);
+          crypto.getRandomValues(buf);
+          return buf[0] / 4294967296;
+        }
+
+        /* ---------- Router ---------- */
+        var pageEls = {};
+        document.querySelectorAll("[data-page]").forEach(function (el) {
+          pageEls[el.getAttribute("data-page")] = el;
+        });
+        function currentRoute() {
+          var h = window.location.hash.replace(/^#\/?/, "");
+          var parts = h.split("/");
+          if (parts[0] === "article" && parts[1]) return "article-" + parts[1];
+          if (parts[0] === "" ) return "home";
+          return parts[0];
+        }
+        function render() {
+          var route = currentRoute();
+          if (!pageEls[route]) route = "home";
+          Object.keys(pageEls).forEach(function (key) {
+            pageEls[key].classList.toggle("visible", key === route);
+          });
+          var navKey = route.indexOf("article-") === 0 ? "articles" : route;
+          document.querySelectorAll("[data-nav]").forEach(function (a) {
+            a.classList.toggle("active", a.getAttribute("data-nav") === navKey);
+          });
+          window.scrollTo(0, 0);
+          // In-page anchors (#dice / #coin) live on the home page.
+          var raw = window.location.hash;
+          if (raw === "#dice" || raw === "#coin") {
+            var target = document.getElementById(raw.slice(1));
+            if (target) target.scrollIntoView();
+          }
+        }
+        window.addEventListener("hashchange", render);
+
+        /* ---------- Random number generator ---------- */
+        var rngMin = document.getElementById("rng-min");
+        var rngMax = document.getElementById("rng-max");
+        var rngCount = document.getElementById("rng-count");
+        var rngMode = document.getElementById("rng-mode");
+        var rngPlaces = document.getElementById("rng-places");
+        var rngPlacesField = document.getElementById("rng-places-field");
+        var rngDupes = document.getElementById("rng-dupes");
+        var rngError = document.getElementById("rng-error");
+        var rngResults = document.getElementById("rng-results");
+        var rngStats = document.getElementById("rng-stats");
+        var lastResults = [];
+
+        rngMode.addEventListener("change", function () {
+          rngPlacesField.hidden = rngMode.value !== "dec";
+        });
+
+        function fmtNum(v, places, isDec) {
+          if (isDec) return v.toFixed(places);
+          return String(v);
+        }
+
+        document.getElementById("rng-go").addEventListener("click", function () {
+          rngError.textContent = "";
+          rngResults.innerHTML = "";
+          rngStats.textContent = "";
+          lastResults = [];
+
+          var isDec = rngMode.value === "dec";
+          var places = parseInt(rngPlaces.value, 10);
+          var min = parseFloat(rngMin.value);
+          var max = parseFloat(rngMax.value);
+          var count = parseInt(rngCount.value, 10);
+          var allowDupes = rngDupes.checked;
+
+          if (isNaN(min) || isNaN(max)) { rngError.textContent = "Please enter both a minimum and a maximum value."; return; }
+          if (min > max) { rngError.textContent = "The minimum must be less than or equal to the maximum."; return; }
+          if (isNaN(count) || count < 1) { rngError.textContent = "Please ask for at least 1 number."; return; }
+          if (count > 500) { rngError.textContent = "You can generate up to 500 numbers at a time."; return; }
+          if (!isDec && (Math.floor(min) !== min || Math.floor(max) !== max)) {
+            rngError.textContent = "Whole-number mode needs whole-number minimum and maximum values — or switch to Decimals.";
+            return;
+          }
+          if (!allowDupes && !isDec) {
+            var rangeSize = max - min + 1;
+            if (count > rangeSize) {
+              rngError.textContent = "Without duplicates you can draw at most " + rangeSize + " numbers from a range of " + min + " to " + max + ". Reduce the amount or widen the range.";
+              return;
+            }
+          }
+          if (min === max) {
+            lastResults = [];
+            for (var i = 0; i < count; i++) lastResults.push(min);
+            if (!allowDupes && count > 1) {
+              rngError.textContent = "Minimum and maximum are the same, so only one unique number exists in this range.";
+              lastResults = [min];
+            }
+            showResults(isDec, places);
+            return;
+          }
+
+          var results = [];
+          if (!isDec) {
+            if (allowDupes) {
+              for (var a = 0; a < count; a++) results.push(randIntInclusive(min, max));
+            } else {
+              var seen = {};
+              var guard = 0;
+              while (results.length < count && guard < count * 200 + 1000) {
+                guard++;
+                var v = randIntInclusive(min, max);
+                if (!seen[v]) { seen[v] = true; results.push(v); }
+              }
+            }
+          } else {
+            if (allowDupes) {
+              for (var b = 0; b < count; b++) {
+                results.push(parseFloat((min + randFloat() * (max - min)).toFixed(places)));
+              }
+            } else {
+              var seenD = {};
+              var guardD = 0;
+              while (results.length < count && guardD < count * 300 + 1000) {
+                guardD++;
+                var dv = parseFloat((min + randFloat() * (max - min)).toFixed(places));
+                var key = dv.toFixed(places);
+                if (!seenD[key]) { seenD[key] = true; results.push(dv); }
+              }
+              if (results.length < count) {
+                rngError.textContent = "Only " + results.length + " unique values exist in that range at " + places + " decimal place(s). Add more decimal places or allow duplicates.";
+                if (results.length === 0) return;
+              }
+            }
+          }
+          lastResults = results;
+          showResults(isDec, places);
+        });
+
+        function showResults(isDec, places) {
+          rngResults.innerHTML = "";
+          lastResults.forEach(function (v) {
+            var chip = document.createElement("span");
+            chip.className = "num-chip";
+            chip.textContent = fmtNum(v, places, isDec);
+            rngResults.appendChild(chip);
+          });
+          if (lastResults.length > 1) {
+            var sum = lastResults.reduce(function (s, v) { return s + v; }, 0);
+            var lo = Math.min.apply(null, lastResults);
+            var hi = Math.max.apply(null, lastResults);
+            var avg = sum / lastResults.length;
+            rngStats.textContent =
+              lastResults.length + " numbers · Lowest: " + fmtNum(lo, places, isDec) +
+              " · Highest: " + fmtNum(hi, places, isDec) +
+              " · Average: " + (isDec ? avg.toFixed(places) : (Math.round(avg * 100) / 100)) +
+              " · Sum: " + (isDec ? sum.toFixed(places) : sum);
+          }
+        }
+
+        document.getElementById("rng-copy").addEventListener("click", function () {
+          if (!lastResults.length) {
+            rngError.textContent = "Generate some numbers first, then copy them.";
+            return;
+          }
+          var isDec = rngMode.value === "dec";
+          var places = parseInt(rngPlaces.value, 10);
+          var text = lastResults.map(function (v) { return fmtNum(v, places, isDec); }).join(", ");
+          var btn = this;
+          function done() {
+            var old = btn.textContent;
+            btn.textContent = "Copied!";
+            setTimeout(function () { btn.textContent = old; }, 1600);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text); done(); });
+          } else {
+            fallbackCopy(text); done();
+          }
+        });
+        function fallbackCopy(text) {
+          var ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand("copy"); } catch (e) {}
+          document.body.removeChild(ta);
+        }
+
+        /* ---------- Dice roller ---------- */
+        var DICE_FACES = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+        var diceCount = 2;
+        var diceHistory = [];
+        var diceSeg = document.getElementById("dice-count");
+        diceSeg.querySelectorAll("button").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            diceSeg.querySelectorAll("button").forEach(function (b) { b.classList.remove("on"); });
+            btn.classList.add("on");
+            diceCount = parseInt(btn.getAttribute("data-n"), 10);
+            rollDice();
+          });
+        });
+        function rollDice() {
+          var row = document.getElementById("dice-row");
+          row.innerHTML = "";
+          var total = 0;
+          var vals = [];
+          for (var i = 0; i < diceCount; i++) {
+            var v = randIntInclusive(1, 6);
+            vals.push(v);
+            total += v;
+            var d = document.createElement("div");
+            d.className = "die";
+            d.textContent = DICE_FACES[v - 1];
+            d.setAttribute("aria-label", "Die showing " + v);
+            row.appendChild(d);
+          }
+          document.getElementById("dice-total").textContent =
+            "Total: " + total + "  (" + vals.join(" + ") + ")";
+          diceHistory.unshift(vals.join(", ") + " → " + total);
+          if (diceHistory.length > 5) diceHistory.length = 5;
+          document.getElementById("dice-history").innerHTML =
+            diceHistory.map(function (h) { return "<div>" + h + "</div>"; }).join("");
+        }
+        document.getElementById("dice-roll").addEventListener("click", rollDice);
+
+        /* ---------- Coin flip ---------- */
+        var heads = 0, tails = 0;
+        var coinFace = document.getElementById("coin-face");
+        function flipCoins(n) {
+          var last = null;
+          for (var i = 0; i < n; i++) {
+            last = randBelow(2) === 0 ? "Heads" : "Tails";
+            if (last === "Heads") heads++; else tails++;
+          }
+          coinFace.textContent = last;
+          document.getElementById("tally-heads").textContent = heads;
+          document.getElementById("tally-tails").textContent = tails;
+          document.getElementById("tally-total").textContent = heads + tails;
+          document.getElementById("tally-last").textContent =
+            n > 1 ? last + " (last of " + n + ")" : last;
+        }
+        document.getElementById("coin-one").addEventListener("click", function () { flipCoins(1); });
+        document.getElementById("coin-ten").addEventListener("click", function () { flipCoins(10); });
+        document.getElementById("coin-reset").addEventListener("click", function () {
+          heads = 0; tails = 0;
+          coinFace.textContent = "Flip me";
+          document.getElementById("tally-heads").textContent = "0";
+          document.getElementById("tally-tails").textContent = "0";
+          document.getElementById("tally-total").textContent = "0";
+          document.getElementById("tally-last").textContent = "—";
+        });
+
+        render();
+      })();
+    </script>
+  </body>
+</html>
